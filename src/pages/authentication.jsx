@@ -15,14 +15,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from "../contexts/AuthContext";
 import { Snackbar } from "@mui/material";
 
- const authentication = () =>{
-    return(
-        <div>Authentication</div>
-    )
-}
-export {authentication};
-// import * as React from 'react';
-
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
@@ -40,24 +32,34 @@ const [formState, setFormState] = useState(0);
 const [open, setOpen ] = useState(false);
 
 const {handleRegister, handleLogin} = useContext(AuthContext);
-let handleAuth = async () => {
-    try{
-        if(formState === 0){
 
-        }
-        if(formState === 1){
-            let result = await handleRegister(name, username, password);
+let handleAuth = async () => {
+    try {
+        if (formState === 0) { // Login
+            let result = await handleLogin(username, password);
             console.log(result);
             setMessage(result);
             setOpen(true);
         }
-    }catch(err){
-      console.log(err);
-      return;
-        let message = (err.response.data.message);
+        if (formState === 1) { // Register
+            let result = await handleRegister(name, username, password);
+            console.log(result);
+            setUsername("");
+            setMessage(result);
+            setOpen(true);
+            setError("");
+            setFormState(0);
+            setPassword("");
+        }
+    } catch (err) {
+        console.log(err);
+        let message = (err.response && err.response.data && err.response.data.message) 
+                        ? err.response.data.message 
+                        : "An error occurred.";
         setError(message);
     }
-}
+};
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -106,6 +108,7 @@ let handleAuth = async () => {
                 id="fullname"
                 label="Full Name"
                 name="fullname"
+                value={name}
                 autoComplete="fullname"
                 autoFocus
                 onChange={(e)=>setName(e.target.value)}
@@ -117,6 +120,7 @@ let handleAuth = async () => {
                 id="username"
                 label="Username"
                 name="username"
+                value={username}
                 autoComplete="username"
                 autoFocus
                 onChange={(e)=>setUsername(e.target.value)}
@@ -127,6 +131,7 @@ let handleAuth = async () => {
                 fullWidth
                 name="password"
                 label="Password"
+                value={password}
                 type="password"
                 id="password"
                 onChange={(e)=>setPassword(e.target.value)}
